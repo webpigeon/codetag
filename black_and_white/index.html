@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Black or White :: Codetag</title>
+		<meta charset="UTF-8">
+	</head>
+	<body>
+
+<script>
+window.onload = function() {
+
+function handleFileSelect(evt) {
+    var f = evt.target.files[0]; // FileList object
+
+      // Only process image files.
+      if (!f.type.match('image.*')) {
+        alert("you did not supply a valid image");
+	return;
+      }
+
+	var reader = new FileReader();
+	reader.onload = function(img) { 
+		var image = new Image();
+		image.onload = function() {
+			var canvas = document.getElementById("drawing");
+			var context = canvas.getContext("2d");
+			canvas.width = image.width;
+			canvas.height = image.height;
+			context.drawImage(image,0,0);
+		};
+		
+		image.src = img.target.result;
+	};
+
+      // Read in the image file as a data URL.
+      reader.readAsDataURL(f);
+}
+
+  document.getElementById('files').addEventListener('change', handleFileSelect, false);
+}
+
+function getColorData() {
+	var canvas = document.getElementById("drawing");
+	var context = canvas.getContext("2d");
+	var data = context.getImageData(0, 0, canvas.width, canvas.height);
+
+	for (var i=0; i<data.data.length; i+=4 ) {
+		data.data[i] = 255 - data.data[i];
+		data.data[i+1] = 255 - data.data[i+1];
+		data.data[i+2] = 255 - data.data[i+2];
+	}
+
+	context.putImageData(data, 0, 0);
+}
+</script>
+
+		<canvas id="drawing"></canvas>
+		<form action="#">
+			<input id="files" type="file" name="pic" accept="image/*" />
+			<input type="button" onclick="getColorData();" />
+		</form>
+	</body>
+</html>
