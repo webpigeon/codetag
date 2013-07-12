@@ -39,9 +39,34 @@ function handleFileSelect(evt) {
   document.getElementById('files').addEventListener('change', handleFileSelect, false);
 }
 
-function simple_filter(r,g,b){
-	return (r + b + g) / 765 * 255;
+function averageFilter(r,g,b){
+	return (r + b + g) / 3;
 }
+
+function visualRangeFilter(r,g,b){
+	return (r * 0.3 + g * 0.59 + b * 0.11);
+}
+
+function desaturationFilter(r,g,b){
+	return (Math.max(r,g,b) + Math.min(r,g,b)) / 2;
+}
+
+function maxDecompFilter(r,g,b) {
+	return Math.max(r,g,b);
+}
+
+function minDecompFilter(r,g,b) {
+	return Math.min(r,g,b); 
+}
+
+function shadedImage(shades, baseFilter) {
+	return function rangedConvertFilter(r,g,b) {
+		var conversionFactor = 255 / (shades - 1);
+		var baseVal = baseFilter(r,g,b);
+		return (baseVal / conversionFactor + 0.5) * conversionFactor;
+	}
+}
+
 
 function convertImage(conv_func) {
 	var canvas = document.getElementById("drawing");
@@ -60,10 +85,19 @@ function convertImage(conv_func) {
 }
 </script>
 
-		<canvas id="drawing"></canvas>
+		<h1>WebPigeon's Magical Black and White mashine</h1>
+		<p>Really simple page which loads images into a HTML 5 canvas and makes them black and white but chaging the RGB values (ignoring alpha values). The code comes bundled with a bunch of different algorhtms for doing the conversion. You can swap these out of you want to have a play with the code :).</p>
 		<form action="#">
-			<input id="files" type="file" name="pic" accept="image/*" />
-			<input type="button" onclick="convertImage(simple_filter);" value="black and white" />
+			<div style="float: left;">
+				<canvas id="drawing"> </canvas> <br />
+				<input id="files" type="file" name="pic" accept="image/*" />
+			</div>
+			<div style="float: right" >
+			<input type="button" onclick="convertImage(shadedImage(256, averageFilter));" value="black and white (8 bit)" /> <br />
+			<input type="button" onclick="convertImage(shadedImage(16, averageFilter));" value="black and white (4 bit)" /> <br />
+			<input type="button" onclick="convertImage(shadedImage(4, averageFilter));" value="black and white (2 bit)" /> <br />
+			<input type="button" onclick="convertImage(shadedImage(2, averageFilter));" value="black and white (2 bit)" />
+			</div>
 		</form>
 	</body>
 </html>
