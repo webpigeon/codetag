@@ -39,15 +39,21 @@ function handleFileSelect(evt) {
   document.getElementById('files').addEventListener('change', handleFileSelect, false);
 }
 
-function getColorData() {
+function simple_filter(r,g,b){
+	return (r + b + g) / 765 * 255;
+}
+
+function convertImage(conv_func) {
 	var canvas = document.getElementById("drawing");
 	var context = canvas.getContext("2d");
 	var data = context.getImageData(0, 0, canvas.width, canvas.height);
 
 	for (var i=0; i<data.data.length; i+=4 ) {
-		data.data[i] = 255 - data.data[i];
-		data.data[i+1] = 255 - data.data[i+1];
-		data.data[i+2] = 255 - data.data[i+2];
+		var value = conv_func(data.data[i], data.data[i+1], data.data[i+2]);
+
+		data.data[i] = value;
+		data.data[i+1] = value;
+		data.data[i+2] = value;
 	}
 
 	context.putImageData(data, 0, 0);
@@ -57,7 +63,7 @@ function getColorData() {
 		<canvas id="drawing"></canvas>
 		<form action="#">
 			<input id="files" type="file" name="pic" accept="image/*" />
-			<input type="button" onclick="getColorData();" value="Invert colours" />
+			<input type="button" onclick="convertImage(simple_filter);" value="black and white" />
 		</form>
 	</body>
 </html>
